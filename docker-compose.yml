@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: syslog-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: syslog_db
+      MYSQL_USER: syslog_user
+      MYSQL_PASSWORD: syslog_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  syslog-ng:
+    build: ./syslog-ng
+    container_name: syslog-ng
+    depends_on:
+      - mysql
+    ports:
+      - "1514:1514/udp"
+      - "1514:1514/tcp"
+    volumes:
+      - ./syslog-ng/syslog-ng.conf:/etc/syslog-ng/syslog-ng.conf:ro
+      - ./logs:/var/log/syslog-ng
+
+volumes:
+  mysql-data:
